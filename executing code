@@ -1,0 +1,684 @@
+#!/usr/bin/env python
+# coding: utf-8
+
+# ### <span style='color:Maroon'>Firstly, we need to import the following for our datasets and visuals to run smmoothly </span>
+
+# In[1]:
+
+
+import pandas as pd
+from matplotlib import pyplot as plt
+get_ipython().run_line_magic('matplotlib', 'inline')
+import seaborn as sns
+from seaborn import countplot
+from matplotlib import pyplot
+import numpy as np 
+import folium
+from folium import plugins
+import folium.plugins as plugins
+from folium.plugins import HeatMap
+from folium.plugins import HeatMapWithTime
+import matplotlib.pyplot as plt
+
+
+# ###  <span style='color:Maroon'> Need to install all four as it is needed to for line 4 to run, this is important as this is for the mpl Basemap  </span>
+# 
+
+# In[2]:
+
+
+pip install pyproj --no-binary pyproj 
+
+
+# In[3]:
+
+
+conda install -c conda-forge pyproj 
+
+
+# In[4]:
+
+
+pip install basemap
+
+
+# In[5]:
+
+
+conda install -c conda-forge basemap-data-hires=1.0.8.dev0 -- this needs to run under Anaconda Prompt and press "y" to install
+
+
+# In[6]:
+
+
+import os
+os.environ['PROJ_LIB'] = 'C:/Users/USERNAME/Anaconda3/Lib/site-packages/mpl_toolkits/basemap'
+
+
+# In[7]:
+
+
+from mpl_toolkits.basemap import Basemap
+
+
+# ### <span style='color:Maroon'> Datasets: Crime Data of September 2020 for Essex and South Wales  </span>
+#  
+
+# In[8]:
+
+
+essexcrime092020 = pd.read_csv('2020-09-essex-street.csv')
+swcrime092020 = pd.read_csv('2020-09-south-wales-street.csv')
+stopsearchessex = pd.read_csv('2020-09-essex-stop-and-search.csv')
+stopsearchsw = pd.read_csv('2020-09-south-wales-stop-and-search.csv')
+essexoutcome = pd.read_csv('2020-09-essex-outcomes.csv')
+swoutcome = pd.read_csv('2020-09-south-wales-outcomes.csv')
+
+
+# ### <span style='color:Maroon'> Values displayed for the following datasets  </span>
+
+# In[9]:
+
+
+display(essexcrime092020)
+
+
+# In[10]:
+
+
+display(swcrime092020)
+
+
+# In[11]:
+
+
+display(stopsearchessex)
+
+
+# In[12]:
+
+
+display(stopsearchsw)
+
+
+# In[13]:
+
+
+display(essexoutcome)
+
+
+# In[14]:
+
+
+display(swoutcome)
+
+
+# ###  <span style='color:Maroon'> Simple Summary Statistics for Essex and Southwales Crime  </span>
+# 
+
+# In[15]:
+
+
+essexcrime092020 = essexcrime092020.drop("Context", axis=1)
+
+
+# In[16]:
+
+
+essexcrime092020.describe()
+
+
+# In[17]:
+
+
+swcrime092020 = swcrime092020.drop("Context", axis=1)
+
+
+# In[18]:
+
+
+swcrime092020.describe()
+
+
+# ###  <span style='color:Maroon'> Crime Count for Essex and South Wales  </span>
+
+# >>  <span style='color:Maroon'>**indicated is the total crime of all and the total count for each crime**</span>
+
+# In[19]:
+
+
+txt = "Total Crimes of Essex within September 2020"
+
+x = txt.title()
+
+print(x)
+
+essexcrime092020['Crime type'].describe().to_frame()
+
+
+# In[20]:
+
+
+txt = "SEPT 2020 Total number of Crimes per Type in Essex"
+
+x = txt.title()
+
+print(x)
+
+txt = ">>We see that Violence and sexual offences has the most number of crimes all throughout Essex for September 2020."
+
+x = txt.title()
+
+essexcrime092020['Crime type'].value_counts().to_frame()
+
+
+# In[21]:
+
+
+txt = "Total Crimes of South Wales within September 2020"
+
+x = txt.title()
+
+print(x)
+
+swcrime092020['Crime type'].describe().to_frame()
+
+
+# In[22]:
+
+
+txt = "SEPT 2020 Total number of Crimes per Type in South Wales"
+
+x = txt.title()
+
+print(x)
+
+swcrime092020['Crime type'].value_counts().to_frame()
+
+
+# ###  <span style='color:Maroon'> Bar Chart for Crime Dataset for Essex and South Wales  </span>
+
+# In[23]:
+
+
+sns.set(font_scale=1.4)
+essexcrime092020['Crime type'].value_counts().plot(kind='bar', figsize=(8, 10), rot=0)
+plt.xlabel("Crimes", labelpad=14)
+plt.ylabel("Count", labelpad=14)
+plt.title("Essex Crime 2020 Bar Chart", y=1.02);
+plt.xticks(rotation=90)
+
+
+# In[24]:
+
+
+sns.set(font_scale=1.4)
+swcrime092020['Crime type'].value_counts().plot(kind='bar', figsize=(8, 10), rot=0)
+plt.xlabel("Crimes", labelpad=14)
+plt.ylabel("Count", labelpad=14)
+plt.title("South Wales Crime 2020 Bar Chart", y=1.02);
+plt.xticks(rotation=90)
+
+
+# ###  <span style='color:Maroon'> Scatter Plots and Joint Plots for Crime Dataset: Crime Concentration  </span>
+
+# In[25]:
+
+
+sns.relplot(x=essexcrime092020["Longitude"], y=essexcrime092020["Latitude"], kind='scatter')
+plt.show()
+
+sns.relplot(x=swcrime092020["Longitude"], y=swcrime092020["Latitude"], kind='scatter')
+plt.show()
+
+sns.jointplot(x=essexcrime092020["Longitude"], y=essexcrime092020["Crime type"], kind='scatter', color='green')
+plt.show()
+
+sns.jointplot(x=essexcrime092020["Latitude"], y=essexcrime092020["Crime type"], kind='scatter', color='green')
+plt.show()
+
+sns.jointplot(x=swcrime092020["Longitude"], y=swcrime092020["Crime type"], kind='scatter', color='green')
+plt.show()
+
+sns.jointplot(x=swcrime092020["Latitude"], y=swcrime092020["Crime type"], kind='scatter', color='green')
+plt.show()
+
+
+# ###  <span style='color:Maroon'> LSOA Folium Map and Markers for Essex - September 2020  </span>
+
+# In[26]:
+
+
+txt = "SEPT 2020 Location based on their LSOA for Essex"
+
+x = txt.title()
+
+print(x)
+
+txt = ">>Marker shows the locations of the 5 least areas and most areas where crimes have occured."
+
+x = txt.title()
+
+print(x)
+
+essexcrime092020['LSOA name'].value_counts().to_frame()
+
+
+# In[27]:
+
+
+crime_map = folium.Map(location=[52.032381, 0.756334], zoom_start = 8)
+folium.Marker(
+    [51.889081, 0.897825], popup="<b>Colchester 007D</b>", icon=folium.Icon(icon='star', color='red')).add_to(crime_map)
+folium.Marker(
+    [51.798393, 1.146609], popup="<b>Tendring 016B</b>", icon=folium.Icon(icon='star', color='red')).add_to(crime_map)
+folium.Marker(
+    [51.573385, 0.461461], popup="<b>Basildon 015C</b>", icon=folium.Icon(icon='star', color='red')).add_to(crime_map)
+folium.Marker(
+    [51.540424, 0.714148], popup="<b>Southend-on-Sea 010A</b>", icon=folium.Icon(icon='star', color='red')).add_to(crime_map)
+folium.Marker(
+    [51.533579, 0.715773], popup="<b>Southend-on-Sea 015B</b>", icon=folium.Icon(icon='star', color='red')).add_to(crime_map)
+
+folium.Marker(
+    [50.914683, -1.295837], popup="<b>Eastleigh 011B</b>", icon=folium.Icon(icon='star', color='green')).add_to(crime_map)
+folium.Marker(
+    [51.336911, 0.541106], popup="<b>Medway 038A</b>", icon=folium.Icon(icon='star', color='green')).add_to(crime_map)
+folium.Marker(
+    [51.515782, 0.046498], popup="<b>Newham 035D</b>", icon=folium.Icon(icon='star', color='green')).add_to(crime_map)
+folium.Marker(
+    [51.546038, 0.120676], popup="<b>Barking and Dagenham 012C</b>", icon=folium.Icon(icon='star', color='green')).add_to(crime_map)
+folium.Marker(
+    [51.877204, -0.414641], popup="<b>Luton 021C</b>", icon=folium.Icon(icon='star', color='green')).add_to(crime_map)
+
+
+
+
+crime_map
+
+
+# ###  <span style='color:Maroon'> LSOA Folium Map and Markers for South Wales - September 2020  </span>
+
+# In[28]:
+
+
+txt = "SEPT 2020 Location based on their LSOA for South Wales"
+
+x = txt.title()
+
+print(x)
+
+txt = ">>Marker shows the locations of the 5 least areas and most areas where crimes have occured"
+
+x = txt.title()
+
+print(x)
+
+swcrime092020['LSOA name'].value_counts().to_frame()
+
+
+# In[29]:
+
+
+crime_map = folium.Map(location=[51.6833306, -3.3833318], zoom_start = 8)
+folium.Marker(
+    [51.48114, -3.17929], popup="<b>Cardiff 032F</b>", icon=folium.Icon(icon='star', color='red')).add_to(crime_map)
+folium.Marker(
+    [51.479605,-3.177277], popup="<b>Cardiff 032G</b>", icon=folium.Icon(icon='star', color='red')).add_to(crime_map)
+folium.Marker(
+    [51.622451, -3.941807], popup="<b>Swansea 025F</b>", icon=folium.Icon(icon='star', color='red')).add_to(crime_map)
+folium.Marker(
+    [51.746942, -3.378625], popup="<b>Merthyr Tydfil 004D</b>", icon=folium.Icon(icon='star', color='red')).add_to(crime_map)
+folium.Marker(
+    [51.620094, -3.94565], popup="<b>Swansea 025B</b>", icon=folium.Icon(icon='star', color='red')).add_to(crime_map)
+
+folium.Marker(
+    [51.577936, -4.016055], popup="<b>Swansea 031A</b>", icon=folium.Icon(icon='star', color='green')).add_to(crime_map)
+folium.Marker(
+    [51.6133, -3.157784], popup="<b>Caerphilly 015B</b>", icon=folium.Icon(icon='star', color='green')).add_to(crime_map)
+folium.Marker(
+    [51.781948, -3.800644], popup="<b>Powys 021F</b>", icon=folium.Icon(icon='star', color='green')).add_to(crime_map)
+folium.Marker(
+    [51.670431, -4.155384], popup="<b>Carmarthenshire 026A</b>", icon=folium.Icon(icon='star', color='green')).add_to(crime_map)
+folium.Marker(
+    [53.54849, -2.371702], popup="<b>Bolton 034G</b>", icon=folium.Icon(icon='star', color='green')).add_to(crime_map)
+
+
+
+
+crime_map
+
+
+# ###  <span style='color:Maroon'> Heatmaps for Essex and South Wales  </span>
+
+# In[30]:
+
+
+def generateBaseMap(default_location=[51.765907, 0.667367], default_zoom_start=9):
+    base_map = folium.Map(location=default_location, control_scale=True, 
+    zoom_start=default_zoom_start)
+    return base_map
+base_map = generateBaseMap()
+
+
+# In[31]:
+
+
+HeatMap(data=essexcrime092020[['Latitude','Longitude']].groupby(['Latitude','Longitude']).sum().reset_index().values.tolist(), radius=10, max_zoom=12).add_to(base_map)
+
+base_map
+
+
+# In[32]:
+
+
+def generateBaseMap(default_location=[51.3333306, -3.3033318], default_zoom_start=9):
+    base_map = folium.Map(location=default_location, control_scale=True, 
+    zoom_start=default_zoom_start)
+    return base_map
+base_map = generateBaseMap()
+
+
+# In[33]:
+
+
+HeatMap(data=swcrime092020[['Latitude','Longitude']].groupby(['Latitude','Longitude']).sum().reset_index().values.tolist(), radius=10, max_zoom=14).add_to(base_map)
+
+base_map
+
+
+# ###  <span style='color:Maroon'> Gender Count for Stop and Search Dataset  </span>
+
+# >>  <span style='color:Maroon'>**This is taken from the stop and search data to know the count of gender involved**</span>
+
+# #### <span style='color:Maroon'> There are a total of 841 persons ( Male, Female, and Other ) involved in Essex Search Data   </span>
+
+# In[34]:
+
+
+Genderessex=pd.DataFrame(stopsearchessex, columns=['Gender'])
+print(Genderessex)
+
+
+# #### <span style='color:Maroon'> Count of Gender Involved   </span>
+
+# In[35]:
+
+
+Genderessex.Gender.nunique()
+
+
+# #### <span style='color:Maroon'> Total Count of Involved per Gender   </span>
+
+# In[36]:
+
+
+selected_words=['Male','Female','Other']
+Genderessex.loc[Genderessex['Gender'].isin(selected_words),'Gender'].value_counts().to_frame()
+
+
+# #### <span style='color:Maroon'> There are a total of 1162 persons ( Male and Female ) involved in South Wales Search Data   </span>
+
+# In[37]:
+
+
+Gendersw=pd.DataFrame(stopsearchsw, columns=['Gender'])
+print(Gendersw)
+
+
+# #### <span style='color:Maroon'> Count of Gender Involved   </span>
+
+# In[38]:
+
+
+Gendersw.Gender.nunique()
+
+
+# #### <span style='color:Maroon'> Total Count of Involved per Gender   </span>
+
+# In[39]:
+
+
+selected_words=['Male','Female']
+Gendersw.loc[Gendersw['Gender'].isin(selected_words),'Gender'].value_counts().to_frame()
+
+
+# ###  <span style='color:Maroon'> Count Plot for Gender: Stop and Search Dataset  </span>
+
+# In[40]:
+
+
+countplot(x="Gender", hue="Gender", data=stopsearchessex)
+pyplot.title('Count per Gender for Essex Stop and Seach Data September 2020')
+pyplot.show()
+
+countplot(x="Gender", hue="Gender", data=stopsearchsw)
+pyplot.title('Count per Gender for South Wales Stop and Seach Data September 2020')
+pyplot.show()
+
+
+
+# ###  <span style='color:Maroon'> Count for Individual Outcome Type of Essex: Outcome Dataset  </span>
+
+# In[41]:
+
+
+outcome_count = essexoutcome['Outcome type'].value_counts()
+
+
+# In[42]:
+
+
+print(outcome_count)
+
+
+# ###  <span style='color:Maroon'> Pie Chart for Essex Outcome Type: Outcome Dataset  </span>
+
+# >>  <span style='color:Maroon'>**Percentage were put on legend for better view and not overlapping with each other**</span>
+
+# In[43]:
+
+
+plt.gca().axis("equal")
+pie = plt.pie(outcome_count, startangle=0, radius=1.8, wedgeprops = { 'linewidth' : 2, 'edgecolor' : 'white' })
+labels=outcome_count.index.unique()
+percents = outcome_count.to_numpy() * 100 / outcome_count.to_numpy().sum()
+plt.legend( bbox_to_anchor=(1.99,1.1), loc='upper right', fontsize=11.5, title='Essex Outcome Type Percentage',
+            labels=['%s, %1.1f %%' % (l, s) for l, s in zip(outcome_count.index,percents)])
+plt.subplots_adjust(left=0.0, bottom=0.1, right=0.95)
+SMALL_SIZE = 14
+plt.rc('font', size=SMALL_SIZE)
+plt.show()
+plt.clf()
+plt.close()
+
+
+
+
+
+
+# ###  <span style='color:Maroon'> Count for Individual Outcome Type of South Wales: Outcome Dataset  </span>
+
+# In[44]:
+
+
+southwales_count = swoutcome['Outcome type'].value_counts()
+
+
+# In[45]:
+
+
+print(southwales_count)
+
+
+# ###  <span style='color:Maroon'> Pie Chart for South Wales Outcome Type: Outcome Dataset  </span>
+
+# >>  <span style='color:Maroon'>**Percentage were put on legend for better view and not overlapping with each other**</span>
+
+# In[46]:
+
+
+plt.gca().axis("equal")
+pie = plt.pie(southwales_count, startangle=0, radius=1.8, wedgeprops = { 'linewidth' : 2, 'edgecolor' : 'white' })
+labels=southwales_count.index.unique()
+percents = southwales_count.to_numpy() * 100 / southwales_count.to_numpy().sum()
+plt.legend( bbox_to_anchor=(1.99,1.1), loc='upper right', fontsize=11.5, title='South Wales Outcome Type Percentage',
+            labels=['%s, %1.1f %%' % (l, s) for l, s in zip(southwales_count.index,percents)])
+plt.subplots_adjust(left=0.0, bottom=0.1, right=0.95)
+SMALL_SIZE = 14
+plt.rc('font', size=SMALL_SIZE)
+plt.show()
+plt.clf()
+plt.close()
+
+
+# ###  <span style='color:Maroon'> Histograms of All Datasets  </span>
+
+# In[47]:
+
+
+stopsearchessex = np.random.randn(100)
+density, bins, _ = plt.hist(stopsearchessex, density=True, bins=20)
+count, _ = np.histogram(stopsearchessex, bins)
+for x,y,num in zip(bins, density, count):
+    if num != 0:
+        plt.text(x, y+0.05, num, fontsize=10, rotation=-90)
+
+
+# In[48]:
+
+
+stopsearchsw = np.random.randn(100)
+density, bins, _ = plt.hist(stopsearchsw, density=True, bins=20)
+count, _ = np.histogram(stopsearchsw, bins)
+for x,y,num in zip(bins, density, count):
+    if num != 0:
+        plt.text(x, y+0.05, num, fontsize=10, rotation=-90)
+
+
+# In[49]:
+
+
+essexcrime092020 = np.random.randn(100)
+density, bins, _ = plt.hist(essexcrime092020, density=True, bins=20)
+count, _ = np.histogram(essexcrime092020, bins)
+for x,y,num in zip(bins, density, count):
+    if num != 0:
+        plt.text(x, y+0.05, num, fontsize=10, rotation=-90)
+
+
+# In[50]:
+
+
+swcrime092020 = np.random.randn(100)
+density, bins, _ = plt.hist(swcrime092020, density=True, bins=20)
+count, _ = np.histogram(swcrime092020, bins)
+for x,y,num in zip(bins, density, count):
+    if num != 0:
+        plt.text(x, y+0.05, num, fontsize=10, rotation=-90)
+
+
+# In[51]:
+
+
+essexoutcome = np.random.randn(100)
+density, bins, _ = plt.hist(essexoutcome, density=True, bins=20)
+count, _ = np.histogram(essexoutcome, bins)
+for x,y,num in zip(bins, density, count):
+    if num != 0:
+        plt.text(x, y+0.05, num, fontsize=10, rotation=-90)
+
+
+# In[52]:
+
+
+swoutcome = np.random.randn(100)
+density, bins, _ = plt.hist(swoutcome, density=True, bins=20)
+count, _ = np.histogram(swoutcome, bins)
+for x,y,num in zip(bins, density, count):
+    if num != 0:
+        plt.text(x, y+0.05, num, fontsize=10, rotation=-90)
+
+
+# ###  <span style='color:Maroon'> Box Plots for Outcome Dataset of Specific Variables: LSOA Name, Location and Outcome Type  </span>
+
+# In[53]:
+
+
+essexoutcome = pd.DataFrame(np.random.randn(10, 3),
+                  columns=['LSOA name','Location','Outcome type'])
+boxplot = essexoutcome.boxplot(column=['LSOA name','Location','Outcome type'])
+
+
+# In[54]:
+
+
+swoutcome = pd.DataFrame(np.random.randn(10, 3),
+                  columns=['LSOA name','Location','Outcome type'])
+boxplot = swoutcome.boxplot(column=['LSOA name','Location','Outcome type'])
+
+
+# ###  <span style='color:Maroon'> Added Visualisation: LSOA code WordCloud  </span>
+
+# >>  <span style='color:Maroon'>**It is not usual to use WordCloud for Crime Detection but from the likes of Chicago Police Force, it helps them in viewing the bigger picture as to emphasize and detect a certain location within large datasets. With this, I incorporated it with the UK LSOA code to be able to detect the most dominant code.  **</span>
+
+# In[55]:
+
+
+from os import path
+
+
+# In[56]:
+
+
+from PIL import Image
+
+
+# In[57]:
+
+
+pip install wordcloud 
+#-- needed to be install for WordCloud to appear
+
+
+# In[58]:
+
+
+from wordcloud import WordCloud, STOPWORDS, ImageColorGenerator 
+
+
+# In[59]:
+
+
+essexcrime092020 = pd.read_csv('2020-09-essex-street.csv')
+
+
+# In[60]:
+
+
+essexcrime092020.rename(columns={'LSOA code':'LSOA_code'}, inplace=True)
+
+
+# In[61]:
+
+
+LSOAcount1 =essexcrime092020['LSOA_code'].value_counts().to_frame()
+display(LSOAcount1)
+
+
+# In[62]:
+
+
+LSOA2 = " ".join(review for review in essexcrime092020.LSOA_code.astype(str))
+
+
+# In[63]:
+
+
+wordcloud2 = WordCloud(width = 3000, height = 2000, random_state=1, background_color='black', colormap='Set2', collocations=False, stopwords = STOPWORDS).generate(LSOA2)
+plt.figure(figsize=[40,10])
+plt.imshow(wordcloud2, interpolation='bicubic')
+plt.axis("off")
+plt.show()
+
+
+# ####  <span style='color:Maroon'> Looking at the WordCloud, the emphasis is with the 5 LSOA codes with the highest count which is evident on the dataframe "LSOAcount1" count  </span>
